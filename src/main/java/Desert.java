@@ -1,7 +1,8 @@
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.List;
+
 
 public class Desert {
     private final static char GERM = 'O';
@@ -29,26 +30,80 @@ public class Desert {
     }
 
     public void generationalChange(){
-        List<Boolean> cellsUpdated =   new ArrayList<>(Collections.nCopies(dimension * dimension, false));
+
+        //Create empty desert, where new state will be stored
+        List<Boolean> cellsNextGen =   new ArrayList<>(Collections.nCopies(dimension * dimension, false));
         for (int i = 0; i<cells.size(); i++) {
-            boolean cell =  calculateCellForGenerationalChange(i);
-            cellsUpdated.set(i, cell);
+            int numberNeighbours  =  calculateNumberOfCellNeighbours(i);
+            if (isCellLive(numberNeighbours)) {
+                cellsNextGen.set(i,true);
+            } else {
+                cellsNextGen.set(i,false);
+            }
+        }
+        cells = cellsNextGen;
+    }
+
+    public int calculateNumberOfCellNeighbours(int indexOfCell) {
+        // Counter of neighbours;
+        int counter = 0;
+
+        //  count left neighbours, if they exist
+        if (isCellHaveLeftNeighbours(indexOfCell)) {
+            counter = incrementNumberOfNeighbours(counter, indexOfCell + dimension - 1);
+            counter = incrementNumberOfNeighbours(counter, indexOfCell - 1);
+            counter = incrementNumberOfNeighbours(counter, indexOfCell - dimension - 1);
+        }
+
+        //  count left neighbours, if they exist
+        if (isCellHaveRightNeighbours(indexOfCell)) {
+            counter = incrementNumberOfNeighbours(counter, indexOfCell + dimension + 1);
+            counter = incrementNumberOfNeighbours(counter, indexOfCell + 1);
+            counter = incrementNumberOfNeighbours(counter, indexOfCell - dimension + 1);
+        }
+
+        //  count upper and down  neighbours, if they exist
+        if (isCellHaveRightNeighbours(indexOfCell)) {
+            counter = incrementNumberOfNeighbours(counter, indexOfCell + dimension + 1);
+            counter = incrementNumberOfNeighbours(counter, indexOfCell + 1);
+            counter = incrementNumberOfNeighbours(counter, indexOfCell - dimension + 1);
+        }
+        return counter;
+    }
+
+    private boolean isCellHaveLeftNeighbours(int x) {
+        int rowNumber = x % dimension;
+        if ( rowNumber == 0 ) {
+            return false;
+        } else {
+            return true;
         }
     }
 
-    public boolean calculateCellForGenerationalChange(int indexOfCell){
-        int result = 0;
-        int[] allCellsNeighbours = {
-                indexOfCell + dimension -1, indexOfCell + dimension, indexOfCell + dimension +1,
-                indexOfCell - 1, indexOfCell + 1,
-                indexOfCell - dimension -1, indexOfCell - dimension, indexOfCell + dimension +1,
-        };
-
-        int[] existingCellNeighbours = Arrays.stream(allCellsNeighbours).filter( x -> x < cells.size() && x >=0 ).toArray();
-        return  false;
+    private boolean isCellHaveRightNeighbours(int x) {
+        int rowNumber = x % dimension;
+        if ( rowNumber == dimension - 1 ) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
+    private int incrementNumberOfNeighbours(int counter, int cellIndex) {
+       if (isCellIntoListRange(cellIndex)) {
+           return ++counter;
+       } else {
+           return counter;
+       }
+    }
 
+    private boolean isCellIntoListRange(int indexOfCell) {
+        return indexOfCell < cells.size() && indexOfCell >=0;
+    }
+
+    private boolean isCellLive(int numberOfNeighbours) {
+       return numberOfNeighbours == 2 || numberOfNeighbours ==3;
+    }
 
 
     private void validateDesert() {
