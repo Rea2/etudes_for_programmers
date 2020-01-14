@@ -1,3 +1,5 @@
+package eture_01;
+
 import java.util.ArrayList;
 
 import java.util.Collections;
@@ -5,20 +7,26 @@ import java.util.List;
 
 
 public class Desert {
-    private final static char GERM = 'O';
-    private final static char EMPTINESS = '*';
+    private final static String GERM = " 0 ";
+    private final static String EMPTINESS = " * ";
     private List<Boolean> cells;
     private int dimension;
 
     public Desert(int dimension) {
        this.dimension = dimension;
-        cells = new ArrayList<>(dimension * dimension);
+        cells =   new ArrayList<>(Collections.nCopies(dimension * dimension, false));
     }
 
     public Desert(List<Boolean> cells) {
         this.dimension =(int) Math.sqrt(cells.size());
         this.cells = cells;
         validateDesert();
+    }
+
+    public   void setGerms(  int ... cellIndexes) {
+        for (int cell: cellIndexes) {
+           cells.set(cell,true);
+        }
     }
 
     public int getDimension() {
@@ -31,16 +39,28 @@ public class Desert {
 
     public void generationalChange(){
 
-        //Create empty desert, where new state will be stored
+        //Create empty desert, with next generation
         List<Boolean> cellsNextGen =   new ArrayList<>(Collections.nCopies(dimension * dimension, false));
-        for (int i = 0; i<cells.size(); i++) {
+        for (int i = 0; i < cells.size(); i++) {
             int numberNeighbours  =  calculateNumberOfCellNeighbours(i);
-            if (isCellLive(numberNeighbours)) {
-                cellsNextGen.set(i,true);
+            boolean currentCell  = cells.get(i);
+
+            //A new germ will appears, if cell has 3 germs next door
+            if (currentCell == false) {
+                if (isCellMustBorn(numberNeighbours)) {
+                    cellsNextGen.set(i, true);
+
+                }
+            //The existing germ, if cell it  has 2< or >3 neighbours
             } else {
-                cellsNextGen.set(i,false);
+                if(numberNeighbours < 2 || numberNeighbours > 3 ){
+                    cellsNextGen.set(i,false);
+                    System.out.println("Cell " + i + " is dead");
+                } else {
+                    cellsNextGen.set(i,true);
+                }
             }
-        }
+            }
         cells = cellsNextGen;
     }
 
@@ -63,11 +83,9 @@ public class Desert {
         }
 
         //  count upper and down  neighbours, if they exist
-        if (isCellHaveRightNeighbours(indexOfCell)) {
-            counter = incrementNumberOfNeighbours(counter, indexOfCell + dimension + 1);
-            counter = incrementNumberOfNeighbours(counter, indexOfCell + 1);
-            counter = incrementNumberOfNeighbours(counter, indexOfCell - dimension + 1);
-        }
+
+            counter = incrementNumberOfNeighbours(counter, indexOfCell + dimension);
+            counter = incrementNumberOfNeighbours(counter, indexOfCell - dimension);
         return counter;
     }
 
@@ -91,24 +109,25 @@ public class Desert {
 
     private int incrementNumberOfNeighbours(int counter, int cellIndex) {
        if (isCellIntoListRange(cellIndex)) {
-           return ++counter;
-       } else {
-           return counter;
+           if(cells.get(cellIndex) == true) {
+                counter++;
+           }
        }
+       return counter;
     }
 
     private boolean isCellIntoListRange(int indexOfCell) {
         return indexOfCell < cells.size() && indexOfCell >=0;
     }
 
-    private boolean isCellLive(int numberOfNeighbours) {
-       return numberOfNeighbours == 2 || numberOfNeighbours ==3;
+    private boolean isCellMustBorn(int numberOfNeighbours) {
+       return numberOfNeighbours == 3;
     }
 
 
     private void validateDesert() {
         if (isDesertNotValid()) {
-            throw new  IllegalStateException("Desert is not valid: cells= " + cells.size() + "dimension = " + dimension);
+            throw new  IllegalStateException("eture_01.Desert is not valid: cells= " + cells.size() + "dimension = " + dimension);
         }
     }
 
@@ -118,15 +137,19 @@ public class Desert {
 
     @Override
     public String toString() {
-       validateDesert();
+        validateDesert();
         StringBuilder sb = new StringBuilder();
-        for  (int i = 0; i < dimension; i++) {
-            for  (int j = 0; j < dimension; j++) {
-                 sb.append( cells.get(i * dimension + j) == true ? GERM : EMPTINESS );
+        try {
+            for  (int i = 0; i < dimension; i++) {
+                for  (int j = 0; j < dimension; j++) {
+                     sb.append( cells.get(i * dimension + j) == true ? GERM : EMPTINESS );
+                }
+                sb.append("\n");
             }
-            sb.append("\n");
+        } catch (Exception e) {
+
         }
 
-        return sb.reverse().toString();
+        return sb.toString();
     }
 }
