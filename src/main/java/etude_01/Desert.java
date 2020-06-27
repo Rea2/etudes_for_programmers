@@ -1,12 +1,15 @@
-package eture_01;
+package etude_01;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-
 import java.util.Collections;
 import java.util.List;
 
-
 public class Desert {
+
+    private static final Logger LOGGER = LogManager.getLogger(Desert.class);
     private final static String GERM = " 0 ";
     private final static String EMPTINESS = " * ";
     private List<Boolean> cells;
@@ -14,7 +17,7 @@ public class Desert {
 
     public Desert(int dimension) {
        this.dimension = dimension;
-        cells =   new ArrayList<>(Collections.nCopies(dimension * dimension, false));
+       cells =   new ArrayList<>(Collections.nCopies(dimension * dimension, false));
     }
 
     public Desert(List<Boolean> cells) {
@@ -23,7 +26,7 @@ public class Desert {
         validateDesert();
     }
 
-    public   void setGerms(  int ... cellIndexes) {
+    public void setGerms(  int ... cellIndexes) {
         for (int cell: cellIndexes) {
            cells.set(cell,true);
         }
@@ -55,7 +58,7 @@ public class Desert {
             } else {
                 if(numberNeighbours < 2 || numberNeighbours > 3 ){
                     cellsNextGen.set(i,false);
-                    System.out.println("Cell " + i + " is dead");
+                    LOGGER.debug("Cell " + i + " is dead");
                 } else {
                     cellsNextGen.set(i,true);
                 }
@@ -75,7 +78,7 @@ public class Desert {
             counter = incrementNumberOfNeighbours(counter, indexOfCell - dimension - 1);
         }
 
-        //  count left neighbours, if they exist
+        //  count right neighbours, if they exist
         if (isCellHaveRightNeighbours(indexOfCell)) {
             counter = incrementNumberOfNeighbours(counter, indexOfCell + dimension + 1);
             counter = incrementNumberOfNeighbours(counter, indexOfCell + 1);
@@ -83,7 +86,6 @@ public class Desert {
         }
 
         //  count upper and down  neighbours, if they exist
-
             counter = incrementNumberOfNeighbours(counter, indexOfCell + dimension);
             counter = incrementNumberOfNeighbours(counter, indexOfCell - dimension);
         return counter;
@@ -124,10 +126,9 @@ public class Desert {
        return numberOfNeighbours == 3;
     }
 
-
     private void validateDesert() {
         if (isDesertNotValid()) {
-            throw new  IllegalStateException("eture_01.Desert is not valid: cells= " + cells.size() + "dimension = " + dimension);
+            throw new  IllegalStateException("Desert isn't valid: cells= " + cells.size() + "dimension = " + dimension);
         }
     }
 
@@ -147,9 +148,8 @@ public class Desert {
                 sb.append("\n");
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
-
         return sb.toString();
     }
 }

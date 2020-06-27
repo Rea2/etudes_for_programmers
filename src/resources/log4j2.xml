@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <properties>
+        <property name="pattern">[%d{HH:mm:ss}] %p (%F:%L) - %m%n</property>
+        <property name="pretty">%m%n</property>
+    </properties>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${pretty}"/>
+        </Console>
+        <File name="file" fileName="target/logs/etudes.log">
+            <PatternLayout pattern="${pattern}"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="console" level="info"/>
+            <AppenderRef ref="file" level="debug"/>
+        </Root>
+    </Loggers>
+</Configuration>
